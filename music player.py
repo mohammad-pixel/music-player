@@ -484,6 +484,45 @@ class click_volume:
         #tanzim e seda
         pygame.mixer.music.set_volume(Volume / 100)
 
+
+#in methode baraye namayeshe zaman va neshan dadane lahze pakhas
+def ScaleTime():
+
+    while True:
+        #update duration music(aghar music avaz shod)
+        duration = int(Play.duration)
+        #check konad ke music dar hale pakhsh hast ya kheyr aghar pause hast jolo raftan time stop shavad
+        if Play.Play:
+
+            #meghdare seek bar har lahze az meghdare ghabli be ezafe yek bedast miayad
+            seek.set(int(seek.get())+1)
+            #bedast avardane min va sec e muisc baraye namayesh dadan
+            mins, secs=divmod(int(seek.get()), 60)
+            mins=int(mins)
+            secs=int(secs)
+            #namayesh dadane min va sec e music aghar musici pakhsh mishavad zaman neshan dadae shavad
+            #dar gheire insorat zaman neshan dade nashavad
+            if mins!=0 or secs!=0:
+                labelcurrent.config(text='{:02d} : {:02d}'.format(mins, secs))
+            else:
+                labelcurrent.config(text='-- : --')
+            #jolo raftan har yek sec
+            time.sleep(1)
+            #aghar music tamom shod music badi pakhsh shavad
+            if int(seek.get())==int(duration):
+                #aghar list khali shode bashad zamani neshan dade shavad
+                if len(Play.list)==0:
+                    labeltotal.config(text='-- : --')
+                    labelcurrent.config(text='-- : --')
+                    Play.play_pause()
+                #dokme ahange badi zade shavad
+                else:
+                    buttonNext.invoke()
+#method baraye raftan be lahze entekhabi dar seek bar
+def goto(_):
+    if Play.Play:
+        pygame.mixer.music.play(start=int(seek.get()))
+
 #ijade window
 window = tkinter.Tk()
 window.iconbitmap('image\\icon.ico')
