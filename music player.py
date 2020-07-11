@@ -484,6 +484,84 @@ class click_volume:
         #tanzim e seda
         pygame.mixer.music.set_volume(Volume / 100)
 
+#class baraye left menu barname(entekhabe playlist, library, hzf va ezafe kardan be library ya playlist)
+class menu:
+
+    def __init__(self):
+        self.switch = False
+
+    #taghiire vaziat be playlist ya library
+    def Switch(self):
+        self.switch = not self.switch
+        #in button baraye pakhshe playlist ya library ijad mishavad
+        self.buttonSwitch = tkinter.Button(window, image=ImageStart, command=self.choose, height=52, width=52,
+                                           borderwidth=0)
+        self.buttonSwitch_ttk = CreateToolTip(self.buttonSwitch, text="")
+        self.buttonSwitch.place(x=56, y=22)
+
+        #switch True ya False bashad(vaziat be library ya playlist) dokmehaye + va - va dokme e bala, nesbat be libarary ya playlist taghiir mikonad
+        if self.switch:
+            self.buttonSwitch_ttk.text = 'start playlist'
+            buttonPlay.config(image=ImagePlaylist)
+            buttonPlay_ttp.text = 'play list'
+            buttonDelete_ttp.text = 'remove this music from play list'
+            buttonPlus_ttp.text = 'add this  music to playlist'
+            playlist = Playlist.Show()
+            for i in range(len(playlist)):
+                playlist[i] = playlist[i][0]
+
+        else:
+
+            self.buttonSwitch_ttk.text = 'start library'
+            buttonPlay.config(image=ImageLibrary)
+            buttonPlay_ttp.text = 'library'
+            buttonDelete_ttp.text = 'delete this music from library'
+            buttonPlus_ttp.text = 'add a music to library'
+    #methode entekhabe pakhshe library ya playlist
+    def choose(self):
+        #aghar switch True bashad playlist pakhsh mishavad
+        if Switch.switch:
+            #check mikonad ke playlist poor hast ya kheir
+            if len(playlist) >= 1:
+                #talash mikonad musice dar playlist ra pakhsh konad dar gheir insorat music vojod nadarad pas peygham midahad
+                try:
+                    #taghiire liste pakhsh be playlist
+                    Play.list = playlist
+                    #taghiire Track be avale list
+                    Play.Track = 0
+                    #pakhshe music
+                    Play.play()
+                    #dokme switch hazf mishavad
+                    Switch.buttonSwitch.destroy()
+                except:
+                    #choon playlist digar ghabele estenad nist az karbar mikhahad ke on ra hazf konad
+                    answer = messagebox.askokcancel(
+                        message='the music source music in play list\nnot exist maybe it deleted from\nother ways do you want to restore\n..........the play list')
+                    if answer:
+                        os.remove('PLAYLIST.db')
+                        playlist.clear()
+            else:
+                messagebox.showerror(message='playlist is empty')
+        #mesle bala faghat baraye library
+        else:
+            Play.list = library
+            Play.Track = 0
+            Play.play()
+            Switch.buttonSwitch.destroy()
+    #hazf kardan ke ya az library hazf mikonad ya az playlist remove mikonad
+    def Delete(self):
+        if self.switch:
+            Playlist.Delete()
+
+        else:
+            Library.Delete()
+    #add kardan ...
+    def Add(self):
+        if self.switch:
+            Playlist.Add()
+
+        else:
+            Library.Add()
 
 #in methode baraye namayeshe zaman va neshan dadane lahze pakhas
 def ScaleTime():
