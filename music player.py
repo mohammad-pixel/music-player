@@ -1,68 +1,211 @@
-import os, sqlite3,tkinter
-#class library baraye gharar dadan e music ha dar library in kar ba copy kardan ahang anjam mishavad
-class library:
-    #dastor __init__ adrese music ra daryaft mikonad
-    def __init__(self, MusicAdrress):
-        self.MusicAdrress=MusicAdrress
-        self.__Add()
-    #ba dastore add music dar adresse e gherefte shode copy mishavad va dar library ba hamon name gharar dade mishavad
-    #in function ba ejraye dastore __init__ va ijad object ejra mishavad
-    def __Add(self):
-        file=open(self.MusicAdrress, 'rb')
-        list=self.MusicAdrress.split('\\')
-        Musicname=list[len(list)-1]
-        newMusic=open(os.getcwd()+"\\library"+"\\"+Musicname, 'wb')
-        newMusic.write(file.read())
-    @staticmethod
-    #ba methode Delete music dar file e library hazf mishavad
-    def Delete(FileName):
-        os.remove(os.getcwd()+"\\library"+"\\"+FileName)
-#class play list ke esm ahang ha ra dar PLAYLIST ke yek data base hast gharar midahad
-class play_list:
+#pip install pygame
+#pip install tinytag
+#pip install PIL
+import os, tkinter, tinytag, time, threading, random, pygame, sqlite3
+from tkinter import messagebox, filedialog
+from PIL import Image, ImageTk
+#library listi baraye neghahdashtane esme ahang ha
+import mutagen.mp3
+library = os.listdir(r'library')
+#playlist listi baraye neghah dashtane esme ahang haye zakhire dar playlist
+playlist = []
+#baraye neghahdashtane ahang ha tahte yek genre
+genre = []
+#baraye neghahdashtane ahang ha tahte yek artist
+artist = []
+#baraye neghahdashtane ahang ha tahte yek album
+album = []
 
-    #method ahang ra be playlist ezafeh mikonad
-    def __Add(self):
-        try:
-            Connection = sqlite3.connect(os.getcwd() + "\\PLAYLIST.db")
-            Curser = Connection.cursor()
-            Curser.execute("""CREATE TABLE IF NOT EXISTS PLAYLIST(
-                 music char PRIMARY KEY,
-                 TimeAdd char
-                 );""")
-            Query= """INSERT INTO PLAYLIST
-                    (music, TimeAdd)
-                    VALUES
-                    (?,?)"""
-            Curser.execute(Query, (self.MusicName, datetime.datetime.now()))
-            Connection.commit()
-            Curser.close()
-            Connection.close()
-        except:
-            print("music already added")
-    #method list mojod dar PLAYLIST ra bar migardanad
+#method insert baraye poor kardan list haye genre artist va album
+def insert():
+    #in ghesmat library ra migardad va baraye har genre(ya artist ya album) yek list(zir list) dar list() genre ijad mikonad. aghar genre ahang vojod dasht be on ezafe mishavad dar gheir in sorat
+    #list jadid dar genre(ya artist ya album) ijad mishavad
+    for i in range(len(library)):
+        flag = True
+        x = tinytag.TinyTag.get('library\\' + library[i]).genre
+        for j in range(len(genre)):
+            if x in genre[j]:
+                genre[j].append(library[i])
+                flag = False
+                break
+        if flag:
+            new = []
+            new.append(x)
+            new.append(library[i])
+            genre.append(new)
+        flag = True
+        x = tinytag.TinyTag.get('library\\' + library[i]).artist
+        for j in range(len(artist)):
+            if x in artist[j]:
+                artist[j].append(library[i])
+                flag = False
+                break
+        if flag:
+            new = []
+            new.append(x)
+            new.append(library[i])
+            artist.append(new)
+        flag = True
+        x = tinytag.TinyTag.get('library\\' + library[i]).album
+        for j in range(len(album)):
+            if x in album[j]:
+                album[j].append(library[i])
+                flag = False
+                break
+        if flag:
+            new = []
+            new.append(x)
+            new.append(library[i])
+            album.append(new)
+
+
+# class LIBRARY baraye gharar dadan e musicha dar library in kar ba copy kardan ahang anjam mishavad
+class LIBRARY:
+    #in ghesmat address ahang ra az karbar mighirad va yek copy dar library gharar midahad
+    def Add(self):
+        self.MusicAdrress = filedialog.askopenfilename()
+        if self.MusicAdrress:
+            file = open(self.MusicAdrress, 'rb')
+            #in bakhsh esme ahang ra az akhare addresse ahang migirad
+            s = self.MusicAdrress.split('/')
+            Musicname = s[len(s) - 1]
+            #in ghesmat check mikonad ke ahang dar lib
+            if not Musicname in library:
+                #ahang jadid ijad va motaviat ahang gherefte shode rikhte mishavad
+                NewMusic = open(f'library\\{Musicname}', 'wb')
+                NewMusic.write(file.read())
+                #esme ahang jadid be library ezafe mishavad
+                library.append(Musicname)
+                #method baraye ezafeh kardan ahang ezafeh shodeh be genre, artist va album
+                insert()
+                #baraye ezafeh kardan ahang be listbox pakhsh
+                Play.listbox.insert(len(library) - 1, Musicname)
+                #pegham baraye namayesh anajam shodan amalyat
+                messagebox.showinfo(message='music inserted to library')
+            else:
+                #pegham inke ahang ghablan ezafeh shode
+                messagebox.showerror(message='music already added to library!')
+
+    @staticmethod
+    # ba methode Delete music dar file e library hazf mishavad
+    def Delete():
+        #ebtedah check mikonad ke ahang darhal pakhsh ast ya kheir
+        if Play.Start:
+            messagebox.showerror(message='please play a music')
+
+        else:
+            #az karbar darkhaste anjame amalyat ra darad
+            answer = messagebox.askyesno(message='are you sure to delete this music?')
+            if answer:
+                #ebteda aghar ahang dar playlist hast on ra az playlist barmidarad
+                Playlist.Delete()
+                #chon nahveye hzf ahang az library ba yek ozv ba chand ozv fargh darad be do dste taghsim mishavad
+                if len(library) > 1:
+                    #indexe ahang feli ra daryaft mikonad
+                    index = library.index(Play.list[Play.Track])
+                    #pakhsh ra be ahang badi montaghel mikonad
+                    buttonNext.invoke()
+                    #ahang ra az library hzf mikonad
+                    os.remove('library\\' + library[index])
+                    library.remove(library[index])
+
+                elif len(library) == 1:
+                    #baraye inke betavan tanha ahang ra hzf krd bayad in dastor anjam shavad dar gheyre insorat nemitavan hzf krd
+                    pygame.mixer.quit()
+                    pygame.mixer.init()
+                    #hzf kardan
+                    os.remove('library\\' + library[0])
+                    library.remove(library[0])
+                    #barname ra be halat aval barghara mikonad
+                    pygame.mixer.init()
+                    Play.duration=0
+                    Play.Start=True
+                    Play.Play=True
+                    Play.Running=False
+                    button.config(image=ImagePlay)
+                    Play.show_list()
+                    Play.show_image()
+
+
+# class play list ke esm ahang ha ra dar PLAYLIST ke yek data base hast gharar midahad
+class play_list:
+    #dar in ghesmat PLAYLIST.db ijad va aghar vojod darad vasl mishavad
+    Connection = sqlite3.connect("PLAYLIST.db")
+    Curser = Connection.cursor()
+    #dar in ghesmat table PLAYLIST ighar vojod nadarad ijad mishavad
+    Curser.execute("""CREATE TABLE IF NOT EXISTS PLAYLIST(
+         music char PRIMARY KEY
+         );""")
+    Curser.close()
+    Connection.close()
+
+    # method ahang ra be PLAYLIST add mikonad
+    def Add(self):
+        #esme ahang ra az ahang jari library daryaft mikonad
+        MusicName = Play.list[Play.Track]
+        #aghar ahangi ejra nashode bashad az karbar mikhahad ke ejra konad
+        if Play.Start:
+            messagebox.showerror(message='please play a music')
+
+        else:
+            try:
+                #dar in ghesmat esme ahang be playlist ezafe mishavad
+                Connection = sqlite3.connect("PLAYLIST.db")
+                Curser = Connection.cursor()
+
+                Query = """INSERT INTO PLAYLIST
+                          (music)
+                          VALUES
+                          (?)"""
+                Curser.execute(Query, (MusicName,))
+                Connection.commit()
+                Curser.close()
+                Connection.close()
+                playlist.append(MusicName)
+                messagebox.showinfo(message="song added to playlist")
+                #aghar khata ijad shod yani ahang dar playlist gharar darad ya khataii digar vojod darad
+            except:
+                messagebox.showinfo(message="song alreay added to playlist or database removed")
+
+    # method list mojod dar PLAYLIST ra bar migardanad
     def Show(self):
         try:
-            Connection = sqlite3.connect(os.getcwd() + "\\PLAYLIST.db")
+            Connection = sqlite3.connect("PLAYLIST.db")
             Curser = Connection.cursor()
-            Queray="select * from PLAYLIST;"
+            Queray = "select * from PLAYLIST;"
             Curser.execute(Queray)
-            x=Curser.fetchall()
+            ShowPlayList = Curser.fetchall()
             Curser.close()
             Connection.close()
-            return x
+            return ShowPlayList
+        #aghar khata ijad shod dar in sorat ya playlist khali hast ya vojod nadarad
         except:
-            print(f"eror: {sqlite3.Error}")
-    #method ahang ra az PLAYLIST hazf mikonad
-    def Delete(self, MusicName):
-        try:
-            Connection = sqlite3.connect(os.getcwd() + "\\PLAYLIST.db")
-            Curser = Connection.cursor()
-            Curser.execute('DELETE FROM PLAYLIST WHERE music=?', (MusicName,))
-            Connection.commit()
-            Curser.close()
-            Connection.close()
-        except:
-            print(sqlite3.Error)
+            messagebox.showinfo(message='playlist is empty! or database removed')
+
+    # method ahang ra az PLAYLIST hazf mikonad
+    def Delete(self):
+        if Play.Start:
+            messagebox.showinfo(message="please play a music")
+        else:
+            #check mikonad ahang dar playlist hast ya kheir
+            if Play.list[Play.Track] in playlist:
+                Connection = sqlite3.connect("PLAYLIST.db")
+                Curser = Connection.cursor()
+                Curser.execute('DELETE FROM PLAYLIST WHERE music=?', (Play.list[Play.Track],))
+                Connection.commit()
+                Curser.close()
+                Connection.close()
+                #aghar karbar khodash ahang ra az playlist hazf karde bashad be o khabar midahad(aghar ahangi az library hzf shavad az playlist ham hzf mishavad)
+                if Switch.switch:
+                    messagebox.showinfo(message="song removed from playlist")
+                #ahang az list playlist ham hzf mishavad
+                playlist.remove(Play.list[Play.Track])
+                #agahr playlist kamel khali shode bashad pakhsh be library montaghel mishavad
+                if len(playlist) == 0:
+                    Switch.switch = False
+                    Switch.choose()
+            elif Switch.switch:
+                messagebox.showinfo(message='music is not added to playlist')
 
 class play:
     #baraye moshakhas kardan inke music darhal pakhsh hast ya kheir
