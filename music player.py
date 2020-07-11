@@ -523,6 +523,138 @@ def goto(_):
     if Play.Play:
         pygame.mixer.music.play(start=int(seek.get()))
 
+#ijad list box baraye entekhabe artist va pakhshe liste on artist
+class showArtist:
+    def __init__(self):
+        #vaziat e ijad ya hazfe listboxe ijad shode
+        self.on=False
+        #methode ijad ya hazfe listbox
+    def click(self):
+        self.on=not self.on
+        #aghar vaziat e on True bashad listbox ijad mishavad
+        if self.on:
+            #frame baraye gharar dadane listbox va scroll dar on
+            self.frame=tkinter.Frame(window)
+            self.frame.place(x=460, y=26)
+            self.listbox = tkinter.Listbox(self.frame, width=35, height=4, font=('arial',9))
+            #gharar dadane item haye liste artist dar list box
+            for i in range(len(artist)):
+                self.listbox.insert(i+1, artist[i][0])
+            self.listbox.bind('<Double-1>', self.play)
+            self.listbox.pack(side="left", fill="y")
+            self.scroll=tkinter.Scrollbar(self.frame, command=self.listbox.yview, orient="vertical")
+            self.scroll.pack(side="right", fill="y")
+            self.listbox.config(yscrollcommand=self.scroll.set)
+            #aghar dokme artist zade shavad ba click dobare mishavd listbox ra bardasht va image cancel bekhatere hamin gharar dade mishavad roye buttonArtist
+            buttonArtist.config(image=ImageCancel)
+        #aghar on False bashad listbox, scroll va frame haz mishavad
+        else:
+            self.frame.destroy()
+            self.listbox.destroy()
+            self.scroll.destroy()
+            #update image e button be image asli
+            buttonArtist.config(image=ImageArtist)
+    #aghar yek radife listbox entekhab shavad music haye on artist pakhsh mishavad
+    def play(self, _):
+        #update liste pakhsh be on artist(choon ma esme ahang ha ra mikhahim va meghdare 0 artist esme Artist(esme list)
+        # hast az indexe 1 ta akhar ra dar liste pakhsh rikhte mishavad)
+        Play.list=artist[self.listbox.curselection()[0]][1:]
+        #ebtedaye list
+        Play.Track=0
+        #update liste pakhsh
+        Play.show_list()
+        #aghar ahanghi hanoz pakhsh nashode dokme pakhsh zade shavad
+        #dar gheire insorat ahang pakhsh shavad
+        if Play.Start:
+            button.invoke()
+        else:
+            Play.play()
+        #ba entekhabe artist listbox va ... hazf shavad
+        self.frame.destroy()
+        self.listbox.destroy()
+        self.scroll.destroy()
+        self.on=False
+        buttonArtist.config(image=ImageArtist)
+#mesle artist
+class showAlbum:
+    def __init__(self):
+        self.on = False
+
+    def click(self):
+        self.on = not self.on
+        if self.on:
+            self.frame = tkinter.Frame(window)
+            self.frame.place(x=460, y=26)
+            self.listbox = tkinter.Listbox(self.frame, width=35, height=4, font=('arial', 9))
+            for i in range(len(album)):
+                self.listbox.insert(i + 1, album[i][0])
+            self.listbox.bind('<Double-1>', self.play)
+            self.listbox.pack(side="left", fill="y")
+            self.scroll = tkinter.Scrollbar(self.frame, command=self.listbox.yview, orient="vertical")
+            self.scroll.pack(side="right", fill="y")
+            self.listbox.config(yscrollcommand=self.scroll.set)
+            buttonAlbum.config(image=ImageCancel)
+        else:
+            self.frame.destroy()
+            self.listbox.destroy()
+            self.scroll.destroy()
+            buttonAlbum.config(image=ImageAlbum)
+
+    def play(self, _):
+        Play.list = album[self.listbox.curselection()[0]][1:]
+        Play.onRandom = False
+        Play.show_list()
+        Play.Track = 0
+        if Play.Start:
+            Play.play_pause()
+        else:
+            Play.play_next()
+        self.frame.destroy()
+        self.listbox.destroy()
+        self.scroll.destroy()
+        self.on = False
+        buttonAlbum.config(image=ImageAlbum)
+
+#mesle artist...
+class showGenre:
+    def __init__(self):
+        self.on = False
+
+    def click(self):
+        self.on = not self.on
+        if self.on:
+            self.frame = tkinter.Frame(window)
+            self.frame.place(x=460, y=26)
+            self.listbox = tkinter.Listbox(self.frame, width=35, height=4, font=('arial', 9))
+            for i in range(len(genre)):
+                self.listbox.insert(i + 1, genre[i][0])
+            self.listbox.bind('<Double-1>', self.play)
+            self.listbox.pack(side="left", fill="y")
+            self.scroll = tkinter.Scrollbar(self.frame, command=self.listbox.yview, orient="vertical")
+            self.scroll.pack(side="right", fill="y")
+            self.listbox.config(yscrollcommand=self.scroll.set)
+            buttonGenre.config(image=ImageCancel)
+        else:
+            self.frame.destroy()
+            self.listbox.destroy()
+            self.scroll.destroy()
+            buttonGenre.config(image=ImageGenre)
+
+    def play(self, _):
+        Play.list = genre[self.listbox.curselection()[0]][1:]
+        Play.onRandom = False
+        Play.show_list()
+        Play.Track = 0
+        if Play.Start:
+            Play.play_pause()
+        else:
+            Play.play_next()
+        self.frame.destroy()
+        self.listbox.destroy()
+        self.scroll.destroy()
+        self.on = False
+        buttonGenre.config(image=ImageGenre)
+
 #ijade window
 window = tkinter.Tk()
 window.iconbitmap('image\\icon.ico')
