@@ -64,6 +64,247 @@ class play_list:
         except:
             print(sqlite3.Error)
 
+class play:
+    #baraye moshakhas kardan inke music darhal pakhsh hast ya kheir
+    Play = True
+    #baraye inke bebinad aya pakh ejra shode ya kheir
+    Start = True
+    #baraye ejraye nakh mojod dar barname
+    StartT = True
+    #baraye moshakhas kardan shuffle krd barname
+    Repeat = False
+    #ahang feli ke dar ebteda avali hast
+    Track = 0
+    #ahang tekrari pakhsh shavad ya kheir
+    onRandom = False
+    #ijad motaghayer ha va karhaye ebtedai barname baraye ejra
+    def __init__(self):
+        #say mikonad ke time e ahange aval ra bedast biarad
+        try:
+            self.duration = tinytag.TinyTag.get('library\\'+library[0]).duration
+        except:
+            self.duration = 0
+        #moshakhasat e music
+        self.title = ""
+        self.artist = ""
+        self.album = ""
+        #list pakhsh pishfarz library hast
+        self.list = library
+        #nakh baraye ejraye seekbar barname
+        self.t=threading.Thread(target=ScaleTime, daemon=True)
+
+        mp3=mutagen.mp3.MP3('library\\'+self.list[self.Track])
+        print(mp3.info.sample_rate)
+
+        #init kardan mixer
+        pygame.mixer.init()
+        #neshan dadan list pakhsh barnameh
+        self.show_list()
+    #method baraye ejra avalie ya pause, play
+    def play_pause(self):
+        #dar ebteda check mikonad ke ahang dar listpakhsh hast ya kheyr
+        if len(self.list) >= 1:
+            #taghiir dadane Play ba click
+            self.Play = not self.Play
+            #aghar ahangh pause hast pakhsh mishavad
+            if self.Play == True:
+                #unpause kardan az ghesmati ke seekbar ghara darad chon momken hast kardar moghe pause seekbar ra jolo ya aghab karde bashad
+                pygame.mixer.music.play(start=int(seek.get()))
+                #taghiir aks dokme be pause
+                button.config(image=ImagePause)
+                button_ttp.text = 'pause'
+            #aghar paksh shoro nashode ya pause hast
+            else:
+                #agahr pakhsh shoro nashode
+                if self.Start == True:
+                    #tasvir va text dokme be pause taghiir mikonad
+                    button.config(image=ImagePause)
+                    button_ttp.text = 'pause'
+                    #Start az True(halat shoro pakhsh) bardashte mishavad
+                    self.Start = False
+                    #halat dar halate pakhsh True mishavad
+                    self.Play = True
+                    #agahr baraye avalin bar barname ejra mishavad nakhe t ejra mishavad
+                    if self.StartT:
+                        self.t.start()
+                        self.StartT=False
+                    #method insert seda zade mishavad
+                    insert()
+                    #ba in method ahang ejra mishavad
+                    self.play()
+                #aghar ahang darhal pakhsh hast pause mishavad
+                else:
+                    button.config(image=ImagePlay)
+                    button_ttp.text = 'play'
+                    pygame.mixer.music.pause()
+        #ahangi dar listpakhsh nist
+        else:
+
+            answer = messagebox.askokcancel(message='Library is empty\ndo you want to add a music?')
+            if answer:
+                #ahang be library ezafe mishavad
+                Library.Add()
+                #liste pakhsh update mishavad
+                Play.show_list()
+    #method baraye pakhsh repeat
+    def play_repeat(self):
+        #taghiire halat ba click
+        self.Repeat=not self.Repeat
+        #aghar halat repeat bashad
+        if self.Repeat:
+            #dokme be halate cancel repeating taghiir mikonad
+            buttonRepeat.config(image=ImageCancel)
+            buttonRepeat_ttp.text = 'cancel repeating'
+            #dokme be halat Repeat taghiir mikonad
+        else:
+            buttonRepeat.config(image=ImageRepeat)
+            buttonRepeat_ttp.text = 'repeat'
+    #baraye pakhsh ahang badi
+    def play_next(self):
+        if self.Play:
+            #check mikonad ke halat shuffle hast ya kheir
+            if self.onRandom and not self.Repeat:
+                Shuffle = random.randint(0, len(self.list))
+                while Shuffle == self.Track:
+                    Shuffle = random.randint(0, len(self.list))
+                self.Track = Shuffle
+            #check mikonad ke halat Repeat hast ya kheir
+            elif not self.Repeat:
+                self.Track+=1
+            #ahang pakhsh mishavad
+            self.play()
+    #baraye pakhshe ahange ghabli
+    def play_pre(self):
+        if self.Play:
+            self.Track -= 1
+            self.play()
+    #baraye pakhshe halate shuffle
+    def play_random(self):
+        #taghiire halate onRandom ba click
+        self.onRandom = not self.onRandom
+        if self.onRandom:
+            buttonRandom.config(image=ImageCancel)
+        else:
+            buttonRandom.config(image=ImageShuffle)
+    #methode pakhshe ahang
+    def play(self):
+        #check mikonad ke Track az mahdode pakhsh kharej nashavad
+        if self.Track >= len(self.list):
+            self.Track = 0
+        elif self.Track < 0:
+            self.Track = len(self.list)-1
+        #talash mikonad ke ahang ra load konad dar gheire insorat az karbar mikhahad in ahang hzf shavad
+        try:
+            pygame.mixer.music.load('library\\' + self.list[self.Track])
+        except:
+            answer = messagebox.askokcancel(message='this file cant play do you want to Delete it?')
+            if answer:
+                Library.Delete()
+            else:
+                self.Track += 1
+                if self.Track >= len(self.list):
+                    self.Track = 0
+            pygame.mixer.music.load('library\\' + self.list[self.Track])
+        #daryafte inform haye music
+        self.__inform()
+        #ejraye dobare seekbar
+        seek.set(0)
+        #update listbox(listpakhsh) chon momken hast liste pakhsh dochare taghiir shode bashad
+        self.show_list()
+        #neshan dadane ahange darhale pakhsh dar listbox
+        self.listbox.yview_moveto(self.Track*self.listbox.yview()[1])
+        self.highlight()
+        #neshan dadane image album
+        self.show_image()
+        #va belakhare pakhshe ahang (cheghad tool keshid (:   )
+        pygame.mixer.music.play()
+
+    #metoode update informe ahange darhale pakhsh
+    def __inform(self):
+
+        try:
+            self.duration = tinytag.TinyTag.get('library\\' + self.list[self.Track]).duration
+        except:
+            self.duration = 0
+        try:
+            self.title = tinytag.TinyTag.get('library\\' + self.list[self.Track]).title
+        except:
+            pass
+        try:
+            self.artist = tinytag.TinyTag.get('library\\' + self.list[self.Track]).artist
+        except:
+            pass
+        try:
+            self.album = tinytag.TinyTag.get('library\\' + self.list[self.Track]).album
+        except:
+            pass
+        try:
+            labeltotal.config(
+                text=f'{int((self.duration // 60) // 10)}{int((self.duration // 60) % 10)} : {int((self.duration % 60) // 10)}{int((self.duration % 60) % 10)}')
+        except:
+            labeltotal.config(text='-- : --')
+        label2.config(text=f'{self.title}___{self.artist}___{self.album}')
+
+        seek.config(to=self.duration)
+    #methode ijade listbox
+    def show_list(self):
+        #frame baraye gharar dadane listbox
+        self.frame = tkinter.Frame(window)
+        #ijade listbox
+        self.listbox = tkinter.Listbox(self.frame, width=35, height=3, font=('arial', 15))
+        #ijade scrolle listbox
+        self.scroll = tkinter.Scrollbar(self.frame, orient='vertical')
+        #ghara dadane frame
+        self.frame.place(x=200, y=26)
+        #etesale listbox va scroll
+        self.scroll.config(command=self.listbox.yview)
+        self.listbox.config(yscrollcommand=self.scroll.set)
+        # aghar liste pakhsh poor bashad, esme music be list box ezafe mishavad
+        if len(self.list)>0:
+            for i in range(1, len(self.list) + 1):
+                self.listbox.insert(i, self.list[i - 1])
+        #baraye entekhabe music dar listbox ke bayad double click shavad
+        self.listbox.bind('<Double-1>', self.__choose)
+        #mogheyade listbox va scroll
+        self.listbox.pack(side='right', fill='y')
+        self.scroll.pack(side='left', fill='y')
+        #meghdare motagheyere listbox ke ba yek bar taghiire mogheyate do satre jari be dast mi ayad
+        self.para = self.listbox.yview()[1]
+
+    #methode entekhabe ahang az listbox
+    def __choose(self, _):
+        #ghereftane Track az radife entekhabie listbox(chon listbox tuple midahad meghdare listbox gherefte mishavad)
+        self.Track = self.listbox.curselection()[0]
+        #pakhshe music ba Track be daste amade
+        self.play()
+    #method baraye moshakhas kardane ahange dar hale pakhshe listbox
+    def highlight(self):
+        #bg ahange dar hale pakhsh black va fg ahang white mishavad
+        self.listbox.itemconfig(self.Track, {'bg' : 'black'})
+        self.listbox.itemconfig(self.Track, {'fg' : 'white'})
+        #check mikanad baghie ahangh ha ra va fg ra black va bg ra white
+        for i in range(len(self.list)):
+            if i != self.Track:
+                try:
+                    self.listbox.itemconfig(i, {'bg': 'white'})
+                    self.listbox.itemconfig(i, {'fg': 'black'})
+                except:
+                    pass
+    #methode namayeshe album image
+    def show_image(self):
+        #agahr image ahang mojod bod dar gheire insorat image asli
+        try:
+            #chon image asli music ra nemitavan namayesh dad yek image dighar ba methode Image va ImageTk ba size e dorost va pasvande png ijad mishavad
+            self.ImageData = tinytag.TinyTag.get('library\\' + self.list[self.Track], image=True).get_image()
+            self.file = open('image\\ImageAlbum.png', 'wb')
+            self.file.write(self.ImageData)
+            self.Image = Image.open('image\\ImageAlbum.png')
+            self.Image = self.Image.resize((800, 700), Image.ANTIALIAS)
+            self.Image = ImageTk.PhotoImage(self.Image)
+            label.config(image=self.Image)
+        except:
+            label.config(image=Imagebg)
+
 #ijade window
 window = tkinter.Tk()
 window.iconbitmap('image\\icon.ico')
