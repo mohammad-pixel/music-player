@@ -448,6 +448,42 @@ class play:
         except:
             label.config(image=Imagebg)
 
+#class baraye taghiire meghdare seda
+class click_volume:
+    def __init__(self):
+        #mogheiate inke seda tanzim shavad ya na
+        self.on = True
+        #meghdare pishfarze seda
+        self.set = 100
+    #methode taiine on
+    def OpenClose(self):
+        if self.on:
+            #ijade scale baraye tanzim e seda
+            self.scale = tkinter.Scale(window, from_=100, to=0, command=self.__volume)
+            self.scale.set(self.set)
+            self.scale.place(x=58, y=196)
+            self.on = False
+        else:
+            #scale az safhe hazf mishavad
+            self.set = self.scale.get()
+            self.scale.destroy()
+            self.on = True
+    #methode taghiire meghdare volume
+    def __volume(self, _):
+        #meghdar ra az scale mighirad va tanzim mikonad
+        Volume = int(self.scale.get())
+        #tanzime image buttonVolume nesbat be sedaye tanzim shode
+        if Volume == 0:
+            buttonVolume.config(image=imgno)
+        elif Volume >= 1 and Volume < 30:
+            buttonVolume.config(image=imglow)
+        elif Volume >= 30 and Volume < 70:
+            buttonVolume.config(image=imgmid)
+        elif Volume >= 70:
+            buttonVolume.config(image=imgfull)
+        #tanzim e seda
+        pygame.mixer.music.set_volume(Volume / 100)
+
 #ijade window
 window = tkinter.Tk()
 window.iconbitmap('image\\icon.ico')
