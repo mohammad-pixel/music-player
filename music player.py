@@ -236,10 +236,6 @@ class play:
         self.list = library
         #nakh baraye ejraye seekbar barname
         self.t=threading.Thread(target=ScaleTime, daemon=True)
-
-        mp3=mutagen.mp3.MP3('library\\'+self.list[self.Track])
-        print(mp3.info.sample_rate)
-
         #init kardan mixer
         pygame.mixer.init()
         #neshan dadan list pakhsh barnameh
