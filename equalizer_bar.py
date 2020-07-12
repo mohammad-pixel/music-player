@@ -31,41 +31,41 @@ def equ():
 
 def start(win):
 
-    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'green'])
+    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'darkblue'])
 
-    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'green'])
+    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'blue'])
 
-    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'green'])
+    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'dodgerblue'])
 
-    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'green'])
+    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'deepskyblue'])
 
-    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'green'])
+    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'skyblue'])
 
-    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'green'])
+    labelf.append([tkinter.Label(win, bg='white', width=5, height=1), 'lightskyblue'])
 
-    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'red'])
+    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'darkgreen'])
 
-    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'red'])
+    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'green'])
 
-    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'red'])
+    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'forestgreen'])
 
-    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'red'])
+    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'limegreen'])
 
-    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'red'])
+    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'lime'])
 
-    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'red'])
+    labelm.append([tkinter.Label(win, bg='white', width=5, height=1), 'springgreen'])
 
-    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'yellow'])
+    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'indigo'])
 
-    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'yellow'])
+    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'darkviolet'])
 
-    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'yellow'])
+    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'darkorchid'])
 
-    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'yellow'])
+    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'mediumorchid'])
 
-    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'yellow'])
+    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'magenta'])
 
-    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'yellow'])
+    labell.append([tkinter.Label(win, bg='white', width=5, height=1), 'violet'])
 
     labelf[0][0].place(x=80, y=500)
 
